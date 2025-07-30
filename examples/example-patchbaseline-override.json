@@ -1,0 +1,30 @@
+{
+  "PatchBaseline": {
+    "ApprovalRules": [
+      {
+        "ApproveAfterDays": 0,
+        "ComplianceLevel": "CRITICAL",
+        "PatchFilters": [
+          {
+            "Key": "PRODUCT",
+            "Values": [
+              "WindowsServer2019",
+              "WindowsServer2022"
+            ]
+          },
+          {
+            "Key": "CLASSIFICATION",
+            "Values": [
+              "SecurityUpdates",
+              "CriticalUpdates",
+              "Updates"
+            ]
+          }
+        ]
+      }
+    ],
+    "ApprovedPatchesComplianceLevel": "CRITICAL",
+    "OperatingSystem": "WINDOWS",
+    "RejectedPatchesAction": "ALLOW_AS_DEPENDENCY"
+  }
+}
