@@ -1,93 +1,68 @@
 # ssm-maintenance-windows
 
-Repository for creating SSM Maintenance Windows in SSM Patch Manager
+Repository for creating SSM Maintenance Windows in SSM Patch Manager. This repo follows the Core Services pattern.
 
-## Getting started
+For more information on Core Services, including the coding standards that are used check out he Confluence space: https://mantelgroup.atlassian.net/wiki/spaces/MS/pages/5166432523/Core+Services
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+This repository has pre-commit hooks so installing pre-commit is required. Instructions can be found here: https://pre-commit.com/
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## PatchBaseline Overrides
 
-## Add your files
+This module has support for *using* a Baseline Override in Patch Manager, but the act of *creating* a Baseline Override is beyond the scope of Core Services. It can become quite complex and its not something that want to create using the Core Services pattern. That said, we do want to support it if the customer needs it.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+If Baseline Overrides are required, you should break that work out into its own project or task.
 
-```
-cd existing_repo
-git remote add origin https://gitlab.ms.mantelgroup.com.au/managedservices/core-services/ssm-maintenance-windows.git
-git branch -M main
-git push -uf origin main
-```
+<!-- BEGIN_TF_DOCS -->
+## Requirements
 
-## Integrate with your tools
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5 |
 
-- [ ] [Set up project integrations](https://gitlab.ms.mantelgroup.com.au/managedservices/core-services/ssm-maintenance-windows/-/settings/integrations)
+## Providers
 
-## Collaborate with your team
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5 |
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Modules
 
-## Test and Deploy
+No modules.
 
-Use the built-in continuous integration in GitLab.
+## Resources
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+| Name | Type |
+|------|------|
+| [aws_resourcegroups_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/resourcegroups_group) | resource |
+| [aws_ssm_maintenance_window.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window) | resource |
+| [aws_ssm_maintenance_window_target.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window_target) | resource |
+| [aws_ssm_maintenance_window_task.install_os_patches](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window_task) | resource |
+| [aws_ssm_maintenance_window_task.scan](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window_task) | resource |
+| [aws_ssm_maintenance_window_task.update_cloudwatch_agent](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window_task) | resource |
+| [aws_ssm_maintenance_window_task.update_ssm_agent](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_maintenance_window_task) | resource |
 
-***
+## Inputs
 
-# Editing this README
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_baseline_override"></a> [baseline\_override](#input\_baseline\_override) | Optional - S3 URI pointing to a BaselineOverride object. Don't use this if you don't need it.<br>    Using this is suitable for customers who require the use of multiple Patchbaseline Documents for the same Operating Systems.<br>    This PatchBaseline Override must already exist when you supply this variable, this is currently a manual step.<br>    See:https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-baselineoverride-parameter.html | `string` | `null` | no |
+| <a name="input_cutoff"></a> [cutoff](#input\_cutoff) | The number of hours before the end of the Maintenance Window that Systems Manager stops scheduling new tasks for execution. | `number` | `1` | no |
+| <a name="input_duration_hours"></a> [duration\_hours](#input\_duration\_hours) | The max duration of the Maintenance Window in hours. Default is 4hrs. | `number` | `4` | no |
+| <a name="input_maintenance_window_name"></a> [maintenance\_window\_name](#input\_maintenance\_window\_name) | The name of the SSM Maintenance Window | `string` | n/a | yes |
+| <a name="input_max_concurrency"></a> [max\_concurrency](#input\_max\_concurrency) | How many hosts should commands run on at a time. This number should be as high as realistically possible | `number` | `10` | no |
+| <a name="input_max_errors"></a> [max\_errors](#input\_max\_errors) | How many errors should a command fail on before cancelling the Maintenance Window. | `number` | `10` | no |
+| <a name="input_schedule"></a> [schedule](#input\_schedule) | An AWS Cron expression for the Maintenance Window. See https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-scheduled-rule-pattern.html | `string` | n/a | yes |
+| <a name="input_target_tag_key"></a> [target\_tag\_key](#input\_target\_tag\_key) | The Key for the EC2 Instance Tag that is used to target resources for the Maintenance Window | `string` | n/a | yes |
+| <a name="input_target_tag_value"></a> [target\_tag\_value](#input\_target\_tag\_value) | The value for the EC2 Instance Tag that is used to target resources for the Maintenance Window | `string` | n/a | yes |
+| <a name="input_update_cloudwatch_agent"></a> [update\_cloudwatch\_agent](#input\_update\_cloudwatch\_agent) | Determines whether to include a stage in the Maintenance Window config to update the CloudWatch Agent.<br>    Recommended to leave this enabled unless there is a good reason not to. | `bool` | `true` | no |
+| <a name="input_update_ssm_agent"></a> [update\_ssm\_agent](#input\_update\_ssm\_agent) | Determines whether to include a stage in the Maintenance Window config to update the SSM Agent.<br>    Recommended to leave this on and only turn it off if something like CarbonBlack is blocking the agent update. | `bool` | `true` | no |
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Outputs
 
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+| Name | Description |
+|------|-------------|
+| <a name="output_maintenance_window_target"></a> [maintenance\_window\_target](#output\_maintenance\_window\_target) | The ID of the SSM Maintenance Window Target |
+| <a name="output_resource_group_id"></a> [resource\_group\_id](#output\_resource\_group\_id) | The ID of the Resource Group that is used as the target for the Maitenance Windows |
+| <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name) | The name of the Resource Group that is used as the target for the Maitenance Windows |
+<!-- END_TF_DOCS -->
