@@ -46,8 +46,13 @@ variable "schedule" {
 }
 
 variable "target_tag_key" {
+  default     = "PatchGroup"
+  description = <<EOF
+The Key for the EC2 Instance Tag that is used to target resources for the Maintenance Window.
+It should always be left at the default, per AWS recommendations:
+https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-patch-groups.html#how-it-works-patch-groups
+EOF
   type        = string
-  description = "The Key for the EC2 Instance Tag that is used to target resources for the Maintenance Window"
 }
 
 variable "target_tag_value" {

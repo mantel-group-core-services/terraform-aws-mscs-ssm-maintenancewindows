@@ -19,33 +19,30 @@ provider "aws" {
 module "patch_window_1" {
   source = "../"
 
+  cutoff                  = 1
+  duration_hours          = 4
   maintenance_window_name = "example-patch-window-1"
   schedule                = "cron(0 15 ? * TUE *)"
-  duration                = 4
-  cutoff                  = 1
-  target_tag_key          = "Patch_Group"
   target_tag_value        = "Window1"
 }
 
 module "patch_window_2" {
   source = "../"
 
+  cutoff                  = 1
+  duration_hours          = 4
   maintenance_window_name = "example-patch-window-2"
   schedule                = "cron(0 15 ? * WED *)"
-  duration                = 4
-  cutoff                  = 1
-  target_tag_key          = "Patch_Group"
   target_tag_value        = "Window2"
 }
 
 module "patch_window_with_baseline_override" {
   source = "../"
 
+  cutoff                  = 1
+  duration_hours          = 4
   maintenance_window_name = "example-patch-window-override"
   schedule                = "cron(0 15 ? * THU *)"
-  duration                = 4
-  cutoff                  = 1
-  target_tag_key          = "Patch_Group"
   target_tag_value        = "Window_with_override"
 
   # These can be disabled
