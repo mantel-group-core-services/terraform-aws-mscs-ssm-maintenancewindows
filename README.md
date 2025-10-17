@@ -1,10 +1,10 @@
 # ssm-maintenance-windows
 
-Repository for creating SSM Maintenance Windows in SSM Patch Manager. This repo follows the Core Services pattern.
+This module is used to deploy a single SSM Maintenance Window with sensible defaults. It can be deployed any number of times into an AWS Account in order to achieve patching of EC2 Instances.
 
-For more information on Core Services, including the coding standards that are used check out he Confluence space: https://mantelgroup.atlassian.net/wiki/spaces/MS/pages/5166432523/Core+Services
+## For Contributors
 
-This repository has pre-commit hooks so installing pre-commit is required. Instructions can be found here: https://pre-commit.com/
+This repository has `pre-commit` hooks so installing `pre-commit` is required. Instructions can be found here: https://pre-commit.com/
 
 ## PatchBaseline Overrides
 
