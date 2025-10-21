@@ -17,6 +17,12 @@ variable "cutoff" {
   default     = 1
 }
 
+variable "dnf_releasever_override" {
+  default     = "latest"
+  description = "Set this to the dnf release you want to pin to.  The default ('latest') is recommended for long-term patch compliance.  Will do nothing on instances which aren't Amazon Linux 2023 and instances which already have /etc/dnf/vars/releasever present."
+  type        = string
+}
+
 variable "duration_hours" {
   type        = number
   description = "The max duration of the Maintenance Window in hours. Default is 4hrs."
