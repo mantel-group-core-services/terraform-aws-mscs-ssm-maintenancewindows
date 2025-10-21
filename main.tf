@@ -18,6 +18,29 @@ JSON
   }
 }
 
+resource "aws_ssm_document" "dnf_releasever" {
+  document_format = "YAML"
+  document_type   = "Command"
+  name            = "${var.maintenance_window_name}-configure-dnf"
+
+  content = <<-EOF
+    schemaVersion: '2.2'
+    description: Configure dnf to use --releasever=${var.dnf_releasever_override}
+    mainSteps:
+      - action: aws:runShellScript
+        name: configureDnf
+        inputs:
+          runCommand:
+            - |
+              if command -v dnf &> /dev/null && \
+                  test "$(awk -F\" '/^PLATFORM_ID=/ {print $2}' /etc/os-release)" = "platform:al2023" && \
+                  ! test -e /etc/dnf/vars/releasever; then
+                echo "${var.dnf_releasever_override}" > /etc/dnf/vars/releasever
+                chmod 644 /etc/dnf/vars/releasever
+              fi
+  EOF
+}
+
 resource "aws_ssm_maintenance_window" "main" {
   name                       = var.maintenance_window_name
   schedule                   = var.schedule
@@ -35,6 +58,27 @@ resource "aws_ssm_maintenance_window_target" "main" {
   }
 }
 
+resource "aws_ssm_maintenance_window_task" "dnf_config" {
+  max_concurrency = var.max_concurrency
+  max_errors      = var.max_errors
+  name            = "${var.maintenance_window_name}-configure-dnf"
+  priority        = 5
+  task_arn        = aws_ssm_document.dnf_releasever.arn
+  task_type       = "RUN_COMMAND"
+  window_id       = aws_ssm_maintenance_window.main.id
+
+  targets {
+    key    = "WindowTargetIds"
+    values = [aws_ssm_maintenance_window_target.main.id]
+  }
+
+  task_invocation_parameters {
+    run_command_parameters {
+      timeout_seconds = 60
+    }
+  }
+}
+
 resource "aws_ssm_maintenance_window_task" "install_os_patches" {
   window_id       = aws_ssm_maintenance_window.main.id
   name            = "${var.maintenance_window_name}-install-patches"
@@ -46,7 +90,7 @@ resource "aws_ssm_maintenance_window_task" "install_os_patches" {
 
   targets {
     key    = "WindowTargetIds"
-    values = ["${aws_ssm_maintenance_window_target.main.id}"]
+    values = [aws_ssm_maintenance_window_target.main.id]
   }
 
   task_invocation_parameters {
