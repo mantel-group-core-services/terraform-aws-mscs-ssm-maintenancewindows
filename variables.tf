@@ -48,7 +48,13 @@ variable "max_errors" {
 
 variable "schedule" {
   type        = string
-  description = "An AWS Cron expression for the Maintenance Window. See https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-scheduled-rule-pattern.html"
+  description = "An AWS cron expression for the Maintenance Window. See https://docs.aws.amazon.com/systems-manager/latest/userguide/reference-cron-and-rate-expressions.html"
+}
+
+variable "schedule_timezone" {
+  default     = "Etc/UTC"
+  description = "The time zone in which to evaluate the cron expression. For example, 'America/Los_Angeles', 'Australia/Brisbane'."
+  type        = string
 }
 
 variable "target_tag_key" {
