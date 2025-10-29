@@ -42,11 +42,12 @@ resource "aws_ssm_document" "dnf_releasever" {
 }
 
 resource "aws_ssm_maintenance_window" "main" {
+  allow_unassociated_targets = true
+  cutoff                     = var.cutoff
+  duration                   = var.duration_hours
   name                       = var.maintenance_window_name
   schedule                   = var.schedule
-  duration                   = var.duration_hours
-  cutoff                     = var.cutoff
-  allow_unassociated_targets = true
+  schedule_timezone          = var.schedule_timezone
 }
 
 resource "aws_ssm_maintenance_window_target" "main" {
